@@ -42,5 +42,5 @@ The `playbook.yaml` file is used for deploying the application on EC2. It:
 
 <br>
 <br>
-![screenshot](https://github.com/M-Hamza-dost/flask/blob/main/screenshot.jpeg)
+![image_alt](https://github.com/M-Hamza-dost/flask/blob/af2cd3861ed0e22f2607f0418f7d3f3661e2c87f/screenshot.jpeg)
 
