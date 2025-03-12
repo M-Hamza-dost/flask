@@ -1,0 +1,102 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCOUNT_ID = "221082209900"
+        AWS_DEFAULT_REGION = "us-east-1" 
+        IMAGE_REPO_NAME = "flaskapp"
+        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+    }
+
+    stages {
+        stage('Logging into AWS ECR') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '7ef8dbcb-c7c8-4d94-a77e-1a67e367985c']]) {
+                        sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${REPOSITORY_URI}"
+                    }
+                }
+            }    
+        }
+
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/M-Hamza-dost/flask.git']])
+                }
+            }
+        }
+
+        stage('Determine Version') {
+            steps {
+                script {
+                    def version = getLatestVersion()
+                    env.NEW_VERSION = incrementVersion(version)
+                    echo "New version to be tagged: ${env.NEW_VERSION}"
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${REPOSITORY_URI}:${env.NEW_VERSION}", './app')
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    dockerImage.push()
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '7ef8dbcb-c7c8-4d94-a77e-1a67e367985c']]) {
+                        // Pass AWS credentials to Ansible
+                        sh """
+                        ansible-playbook playbook.yaml \
+                        -e "aws_access_key_id=\$AWS_ACCESS_KEY_ID" \
+                        -e "aws_secret_access_key=\$AWS_SECRET_ACCESS_KEY" \
+                      """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed."
+        }
+    }
+}
+
+def getLatestVersion() {
+    def latestTag = sh(script: "aws ecr list-images --repository-name ${IMAGE_REPO_NAME} --query 'imageIds[?imageTag!=null].imageTag' --output text", returnStdout: true).trim()
+    if (latestTag) {
+        echo "Existing tags: ${latestTag}"
+        def versionNumbers = latestTag.tokenize().collect { it.replace('v', '').toInteger() }
+        def maxVersion = 0
+        versionNumbers.each { version ->
+            if (version > maxVersion) {
+                maxVersion = version
+            }
+        }
+        return "v${maxVersion}"
+    }
+    return 'v0'  // Return 'v0' if no tags exist
+}
+
+// Function to increment the version
+def incrementVersion(String version) {
+    def versionNumber = version.replace('v', '').toInteger() + 1
+    return "v${versionNumber}"
+}
