@@ -39,6 +39,6 @@ The `playbook.yaml` file is used for deploying the application on EC2. It:
 
 - Pulls the latest Docker image from AWS ECR
 - Runs the Flask app inside a Docker container
-
+---
 ![image_alt](https://github.com/M-Hamza-dost/flask/blob/af2cd3861ed0e22f2607f0418f7d3f3661e2c87f/screenshot.jpeg)
 
