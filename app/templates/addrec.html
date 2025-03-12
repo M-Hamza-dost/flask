@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Record</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">Home</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('show_rec') }}">Show Record</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('clients') }}">Clients</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h2>Add Record</h2>
+        <form method="post" action="{{ url_for('trainer_create') }}">
+            <input type="text" name="fname" class="form-control mb-3" placeholder="First Name">
+            <input type="text" name="lname" class="form-control mb-3" placeholder="Last Name">
+            <input type="email" name="email" class="form-control mb-3" placeholder="Email">
+            <input type="text" name="region" class="form-control mb-3" placeholder="Region">
+            <select name="c_name" class="form-select mb-3">
+                <option value="DevOps">DevOps</option>
+                <option value="Python">Python</option>
+                <option value="Cyber Security">Cyber Security</option>
+                <option value="SysOps">SysOps</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
