@@ -9,10 +9,10 @@ url="https://jsonplaceholder.typicode.com/users"
 today=datetime.now().strftime('%d-%m-%y  %I:%M')
 
 app=Flask(__name__)
-app.config["MYSQL_HOST"]='172.31.94.201'
-app.config["MYSQL_USER"]='hamzadost'
-app.config["MYSQL_PASSWORD"]='mysqlHamza'
-app.config["MYSQL_DB"]='mydata'
+app.config["MYSQL_HOST"]='<ip-address>'
+app.config["MYSQL_USER"]='<database-user>'
+app.config["MYSQL_PASSWORD"]='<password>'
+app.config["MYSQL_DB"]='<databasename>'
 app.secret_key="123Qwe"
 mysql=MySQL(app)
 
